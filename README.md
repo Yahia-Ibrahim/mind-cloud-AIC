@@ -25,3 +25,4 @@ then we applied the following transformations:
 - the labels were split and encoded.
 - batch size of 32 was chosen.
 
+![example of the spectrogram](https://github.com/Yahia-Ibrahim/mind-cloud-AIC/assets/120991373/5f83164f-89a3-4375-8392-1ae68542d696)
