@@ -1,62 +1,57 @@
-# mind-cloud-AIC
-ASR system for egyption arabic
-## Load the Dataset
+# Mind-Cloud-AIC
+Automatic Speech Recognition (ASR) System for Egyptian Arabic
 
-first we downloaded the dataset.
+## Dataset
 
-The dataset contains 50,715 audio files as `wav` files in the `/train/` folder, and 2,199 audio files in the `/adapt/` folder.
-The label (transcript) for each audio file is a string
-given in the `train.csv` file. The fields are:
+The dataset comprises 50,715 audio files in the `/train/` folder and 2,199 audio files in the `/adapt/` folder. Each audio file is a single-channel 16-bit PCM WAV with a sample rate of 16,000 Hz. The corresponding transcripts are provided in the `train.csv` file with the following fields:
 
-- **audio**: this is the name of the corresponding .wav file
-- **Transcription**: words spoken by the reader.
-
-Each audio file is a single-channel 16-bit PCM WAV with a sample rate of 16,000 Hz.
-
+- **audio**: The name of the corresponding `.wav` file.
+- **Transcription**: The words spoken by the reader.
 
 ## Preprocessing
 
-We first prepared the vocabulary to be used which are 38 charchters contaning the space and the oov token.
+We prepared the vocabulary consisting of 38 characters, including the space and the OOV (out-of-vocabulary) token. The following transformations were applied to the data:
 
-then we applied the following transformations:
+- **Spectrogram Generation**: Spectrograms were obtained using Short-Time Fourier Transform (STFT) with a frame length of 240 (15 ms), frame step of 120, and FFT length of 256.
+- **Normalization**: Spectrograms were normalized.
+- **Label Encoding**: Labels were split and encoded.
+- **Batching**: A batch size of 32 was chosen.
 
-- spectrograms of the data were optained using stft transfromation using frame length of 240 (corresponding to 15 ms), a frame step of 120 and fft length of 256.
-- spectrograms of the whole data were normalized.
-- the labels were split and encoded.
-- batch size of 32 was chosen.
+![Example of the Spectrogram](https://github.com/Yahia-Ibrahim/mind-cloud-AIC/assets/120991373/5f83164f-89a3-4375-8392-1ae68542d696)
 
-![example of the spectrogram](https://github.com/Yahia-Ibrahim/mind-cloud-AIC/assets/120991373/5f83164f-89a3-4375-8392-1ae68542d696)
+## Model Architecture
 
+### Input Layer
+- Accepts spectrogram inputs of shape `(None, input_dim)`.
 
-### Model Architecture
+### Convolutional Layers
+- **Conv1**: 96 filters, kernel size `[11, 41]`, strides `[2, 2]`, followed by ReLU activation.
+- **Conv2**: 128 filters, kernel size `[11, 21]`, strides `[1, 2]`, followed by ReLU activation.
 
-- **Input Layer:** 
-  - Accepts spectrogram inputs of shape.
-  
-- **Convolutional Layers:**
-  - Two 2D convolutional layers are used to capture local patterns in the spectrogram:
-    - **Conv1:** 96 filters, kernel size `[11, 41]`, strides `[2, 2]`, followed by ReLU activation.
-    - **Conv2:** 128 filters, kernel size `[11, 21]`, strides `[1, 2]`, followed by ReLU activation.
+### Reshape Layer
+- Reshapes the output from the convolutional layers to a 2D tensor for the RNN layers.
 
-- **Reshape Layer:**
-  - The output from the convolutional layers is reshaped to a 2D tensor for the RNN layers.
+### RNN Layers
+- **Bidirectional GRU Layers**: Five layers, each with 768 units, to capture temporal dependencies. Each GRU layer uses `tanh` activation and `sigmoid` recurrent activation. Outputs from forward and backward GRU cells are concatenated.
 
-- **RNN Layers:**
-  - Five Bidirectional GRU layers, each with 768 units, are used to capture temporal dependencies:
-    - Each GRU layer uses `tanh` activation and `sigmoid` recurrent activation.
-    - Bidirectional GRU layers concatenate the outputs of forward and backward GRU cells.
+### Dense Layer
+- A fully connected layer with `2 * rnn_units` units followed by ReLU activation.
 
-- **Dense Layer:**
-  - A fully connected layer with `2 * rnn_units` units followed by ReLU activation.
-  
-- **Output Layer:**
-  - The final output layer is a dense layer with `output_dim + 1` units and a softmax activation function to predict character probabilities.
+### Output Layer
+- A dense layer with `output_dim + 1` units and a softmax activation function to predict character probabilities.
 
-### Compilation
+## Compilation
 
-- **Optimizer:** Adam optimizer.
-- **Loss Function:** CTC (Connectionist Temporal Classification) Loss.
+- **Optimizer**: Adam optimizer.
+- **Loss Function**: Connectionist Temporal Classification (CTC) Loss.
 
-### Summary
+## Summary
 
-This model leverages CNNs for feature extraction and RNNs for sequence modeling, making it well-suited for end-to-end speech recognition tasks. The model's architecture ensures effective learning of both local and temporal features from spectrogram inputs.
+This model leverages Convolutional Neural Networks (CNNs) for feature extraction and Recurrent Neural Networks (RNNs) for sequence modeling, making it well-suited for end-to-end speech recognition tasks. The architecture ensures effective learning of both local and temporal features from spectrogram inputs.
+
+You can download the model weights from [here](https://drive.google.com/file/d/1kW7POZ_S4dI9ixqYswXXqOGkFQzKi1WI/view?usp=drive_link).
+
+## References 
+
+- [Automatic Speech Recognition using CTC](https://keras.io/examples/audio/ctc_asr/)
+- [Multi-Dialect Arabic Speech Recognition](https://arxiv.org/pdf/2112.14678)
