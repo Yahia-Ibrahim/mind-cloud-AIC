@@ -1,3 +1,9 @@
+import subprocess
+import sys
+from pathlib import Path
+
+subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", Path(__file__).parent / "requirements.txt"])
+
 import pandas as pd
 import tensorflow as tf
 import numpy as np
@@ -50,9 +56,9 @@ def encode_single_sample_test(wav_file, label):
     ##  Process the label
     # 7. Split the label
     label = tf.strings.unicode_split(label, input_encoding="UTF-8")
-    # 9. Map the characters in label to numbers
+    # 8. Map the characters in label to numbers
     label = char_to_num(label)
-    # 10. Return a dict as our model is expecting two inputs
+    # 9. Return a dict as our model is expecting two inputs
     return spectrogram, label   #spectrogram
 
 def CTCLoss(y_true, y_pred):
@@ -143,11 +149,11 @@ def decode_batch_predictions(pred):
     return output_text
 
 
-model.load_weights("path to where you store the model.h5")
+model.load_weights("milestones/model_01_183.21.h5")
 
 # Let's check results on more validation samples
-test_path = "where you store the test data"
-output_csv_path = 'output.csv'
+test_path = "./test/"                 # assuming testing data are in the same directory
+output_csv_path = 'Transcription.csv'
 files = os.listdir(test_path)
 empty_transcript = ""
 
@@ -182,6 +188,7 @@ new_df = pd.DataFrame({
     'audio': files,
     'transcript': predictions 
 })
+new_df['audio'] = new_df['audio'].str.replace('.wav', '', regex=False)
 
 # Writing the DataFrame to a CSV file
-new_df.to_csv('output.csv', index=False, header=True)
+new_df.to_csv('Transcription.csv', index=False, header=True)
