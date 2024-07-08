@@ -149,7 +149,7 @@ def decode_batch_predictions(pred):
     return output_text
 
 
-model.load_weights("milestones/model_01_183.21.h5")
+model.load_weights("milestones/model_01_184.20.h5")
 
 # Let's check results on more validation samples
 test_path = "./test/"                 # assuming testing data are in the same directory
